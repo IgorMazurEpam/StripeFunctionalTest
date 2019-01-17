@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Testing Stripe API</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script src="https://code.jquery.com/jquery-3.3.1.js"
+	integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+	crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+<style type="text/css">
+   .prd { 
+      margin-left: 20px;
+      margin-top: 30px;
+      padding-left: 5px;
+      color: white; 
+      background-color: DeepSkyBlue;
+      max-width: 500px;
+   }
+   .prd-item { 
+      margin-left: 40px;
+   }
+   .pln { 
+      margin-left: 40px;
+      padding-left: 5px;
+      color: white; 
+      background-color: DeepSkyBlue;
+      max-width: 300px;
+   }
+   .pln-item { 
+      margin-left: 60px;
+   }
+  </style>
+
+<script>
+	$(function() {
+		$.get(
+			"http://localhost:8080/products",
+			onGetProductsSuccess,
+			"json"
+		);
+	});
+	
+	function onGetProductsSuccess(data)
+	{
+		data.forEach(function(item){			
+			$("#frm").append("<div class='prd'><span class='font-weight-bold'> Product: </span><span>" +item.name+" ("+item.id + ")</span></div>");
+			if (item.rusName) $("#frm").append("<div class='prd-item'><span class='font-weight-bold'> Russian: </span><span>" +item.rusName + "</span></div>");
+			if (item.blrName) $("#frm").append("<div class='prd-item'><span class='font-weight-bold'> Bellarusian: </span><span>" +item.blrName + "</span></div>");
+			if (item.fraName) $("#frm").append("<div class='prd-item'><span class='font-weight-bold'> French: </span><span>" +item.fraName + "</span></div>");
+			if (item.trkName) $("#frm").append("<div class='prd-item'><span class='font-weight-bold'> Turkey: </span><span>" +item.trkName + "</span></div>");			
+			if (item.plans) {
+				item.plans.forEach(function(plan){
+					if (plan.id) $("#frm").append("<div class='pln'><span class='font-weight-bold'> Id: </span><span>" +plan.id + "</span></div>");
+					if (plan.amount) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Amount: </span><span>" +plan.amount + "</span></div>");
+					if (plan.currency) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Currency: </span><span>" +plan.currency + "</span></div>");
+					if (plan.interval) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Interval: </span><span>" +plan.interval + "</span></div>");
+					if (plan.intervalCount) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Interval count: </span><span>" +plan.intervalCount + "</span></div>");
+					if (plan.freePeriod) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Free period (days): </span><span>" +plan.freePeriod + "</span></div>");
+				})
+			}
+		})
+	}
+</script>
+</head>
+<body>
+	<h4 style="color:DeepSkyBlue;margin:20px;">Available subscription plans</h4>
+	<div id="frm"></div>
+</body>
+
+
+</html>
