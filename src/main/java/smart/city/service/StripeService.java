@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.stripe.model.Plan;
 import com.stripe.model.Product;
-import smart.city.service.model.DtoConverter;
-import smart.city.service.model.ProductDto;
+
+import smart.city.model.DtoConverter;
+import smart.city.model.ProductDto;
 
 // pk_test_LUutNwyKS2029eQWIXGJgqzs
 

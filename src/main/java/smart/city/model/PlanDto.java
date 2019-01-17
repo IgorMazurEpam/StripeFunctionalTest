@@ -1,4 +1,4 @@
-package smart.city.service.model;
+package smart.city.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

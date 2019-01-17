@@ -1,4 +1,4 @@
-package smart.city.service.model;
+package smart.city.model;
 
 import java.time.LocalDateTime;
 import java.util.List;

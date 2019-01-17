@@ -1,4 +1,4 @@
-package smart.city.service.model;
+package smart.city.model;
 
 import java.time.Instant;
 import java.time.ZoneId;
