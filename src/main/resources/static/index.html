@@ -6,65 +6,318 @@
 <script src="https://code.jquery.com/jquery-3.3.1.js"
 	integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
 	crossorigin="anonymous"></script>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+<!-- 	
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+	integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+	crossorigin="anonymous">
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+	integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+	crossorigin="anonymous"></script>
+-->	
+	
+<script src="https://js.stripe.com/v3/"></script>
 <style type="text/css">
-   .prd { 
-      margin-left: 20px;
-      margin-top: 30px;
-      padding-left: 5px;
-      color: white; 
-      background-color: DeepSkyBlue;
-      max-width: 500px;
-   }
-   .prd-item { 
-      margin-left: 40px;
-   }
-   .pln { 
-      margin-left: 40px;
-      padding-left: 5px;
-      color: white; 
-      background-color: DeepSkyBlue;
-      max-width: 300px;
-   }
-   .pln-item { 
-      margin-left: 60px;
-   }
-  </style>
+
+body {
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+	line-height: 1.5;
+}
+
+.titlo {
+	color: DeepSkyBlue; 
+	margin: 20px;
+	font-size: 1.5rem;
+	font-weight: 500;
+    line-height: 1.2
+}
+
+.fontko-bold {
+	font-weight: 700!important;
+	font-size: 1rem;
+}
+
+.prd {
+	margin-left: 20px; 
+	margin-top: 30px;
+	padding-left: 5px;
+	color: white;
+	background-color: DeepSkyBlue;
+	max-width: 500px;
+}
+
+.prd-item {
+	margin-left: 40px;
+}
+
+.pln {
+	margin-left: 40px;
+	padding-left: 5px;
+	color: white;
+	background-color: DeepSkyBlue;
+	max-width: 300px;
+}
+
+.pln-item {
+	margin-left: 60px;
+}
+
+#paycard {
+	max-width : 500px;
+	margin-left: 60px;
+	border: 3px solid DeepSkyBlue;
+}
+
+/**
+ * The CSS shown here will not be introduced in the Quickstart guide, but shows
+ * how you can use CSS to style your Element's container.
+ */
+.StripeElement {
+  background-color: white;
+  height: 40px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px 0 #e6ebf1;
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+  border-color: #fa755a;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fefde5 !important;
+}
+
+</style>
 
 <script>
 	$(function() {
-		$.get(
-			"http://localhost:8080/products",
-			onGetProductsSuccess,
-			"json"
-		);
+		createCardControl();
+		getCustomers();
+		getSubscriptionPlans();
 	});
 	
-	function onGetProductsSuccess(data)
-	{
-		data.forEach(function(item){			
-			$("#frm").append("<div class='prd'><span class='font-weight-bold'> Product: </span><span>" +item.name+" ("+item.id + ")</span></div>");
-			if (item.rusName) $("#frm").append("<div class='prd-item'><span class='font-weight-bold'> Russian: </span><span>" +item.rusName + "</span></div>");
-			if (item.blrName) $("#frm").append("<div class='prd-item'><span class='font-weight-bold'> Bellarusian: </span><span>" +item.blrName + "</span></div>");
-			if (item.fraName) $("#frm").append("<div class='prd-item'><span class='font-weight-bold'> French: </span><span>" +item.fraName + "</span></div>");
-			if (item.trkName) $("#frm").append("<div class='prd-item'><span class='font-weight-bold'> Turkey: </span><span>" +item.trkName + "</span></div>");			
-			if (item.plans) {
-				item.plans.forEach(function(plan){
-					if (plan.id) $("#frm").append("<div class='pln'><span class='font-weight-bold'> Id: </span><span>" +plan.id + "</span></div>");
-					if (plan.amount) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Amount: </span><span>" +plan.amount + "</span></div>");
-					if (plan.currency) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Currency: </span><span>" +plan.currency + "</span></div>");
-					if (plan.interval) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Interval: </span><span>" +plan.interval + "</span></div>");
-					if (plan.intervalCount) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Interval count: </span><span>" +plan.intervalCount + "</span></div>");
-					if (plan.freePeriod) $("#frm").append("<div class='pln-item'><span class='font-weight-bold'> Free period (days): </span><span>" +plan.freePeriod + "</span></div>");
-				})
-			}
+	function getSubscriptionPlans(){
+		$.get("http://localhost:8080/products", onGetProductsSuccess, "json");
+	}
+	
+	function createCardControl() {
+		// Create a Stripe client.
+		var stripe = Stripe('pk_test_LUutNwyKS2029eQWIXGJgqzs');
+
+		// Create an instance of Elements.
+		var elements = stripe.elements();
+
+		// Custom styling can be passed to options when creating an Element.
+		// (Note that this demo uses a wider set of styles than the guide below.)
+		var style = {
+		  base: {
+		    color: '#32325d',
+		    lineHeight: '18px',
+		    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+		    fontSmoothing: 'antialiased',
+		    fontSize: '16px',
+		    '::placeholder': {
+		      color: '#aab7c4'
+		    }
+		  },
+		  invalid: {
+		    color: '#fa755a',
+		    iconColor: '#fa755a'
+		  }
+		};
+
+		// Create an instance of the card Element.
+		var card = elements.create('card', {style: style});
+
+		// Add an instance of the card Element into the `card-element` <div>.
+		card.mount('#card-element');
+
+		// Handle real-time validation errors from the card Element.
+		card.addEventListener('change', function(event) {
+		  var displayError = document.getElementById('card-errors');
+		  if (event.error) {
+		    displayError.textContent = event.error.message;
+		  } else {
+		    displayError.textContent = '';
+		  }
+		});
+
+		// Handle form submission.
+		var form = document.getElementById('payment-form');
+		form.addEventListener('submit', function(event) {
+		  event.preventDefault();
+
+		  stripe.createToken(card).then(function(result) {
+		    if (result.error) {
+		      // Inform the user if there was an error.
+		      var errorElement = document.getElementById('card-errors');
+		      errorElement.textContent = result.error.message;
+		    } else {
+		      // Send the token to your server.
+		      stripeTokenHandler(result.token);
+		    }
+		  });
+		});
+
+		// Submit the form with the token ID.
+		function stripeTokenHandler(token) {
+		  // Insert the token ID into the form so it gets submitted to the server
+		  /*var form = document.getElementById('payment-form');
+		  var hiddenInput = document.createElement('input');
+		  hiddenInput.setAttribute('type', 'hidden');
+		  hiddenInput.setAttribute('name', 'stripeToken');
+		  hiddenInput.setAttribute('value', token.id);
+		  form.appendChild(hiddenInput);*/
+
+		  // Submit the form
+		  //form.submit();
+		  var tokenInfo = {};
+		  tokenInfo.clientIP = token.client_ip;
+		  tokenInfo.created = token.created;
+		  tokenInfo.id = token.id;
+		  tokenInfo.object = token.object;
+		  tokenInfo.type = token.type;
+		  tokenInfo.zip = token.card.address_zip;
+		  tokenInfo.brand = token.card.brand;
+		  tokenInfo.country = token.card.country;
+		  tokenInfo.cvcChecked = token.card.cvc_check;
+		  tokenInfo.expMonth = token.card.exp_month;
+		  tokenInfo.expYear = token.card.exp_year;
+		  //$.post("http://localhost:8080/createcustomer", tokenInfo, refreshCustomers, "json");
+		  
+		  $.ajax({
+		      type: "POST",
+		      contentType : 'application/json; charset=utf-8',
+		      dataType : 'json',
+		      complete : getCustomers,
+		      url: "http://localhost:8080/createcustomer",
+		      data: JSON.stringify(tokenInfo)
+		  });
+		}
+	}
+	
+	function getCustomers() {
+		$("#customers").empty();
+		$.get("http://localhost:8080/customers", onGetCustomersSuccess, "json");
+	}
+
+	function onGetCustomersSuccess(data) {
+		data.forEach(function(item){
+			$("#customers").append(
+					"<div class='prd'><span class='fontko-bold'> Customer: </span><span>"
+							+ " (" + item.id
+							+ ")</span></div>");
+			if (item.created)
+				$("#customers").append(
+						"<div class='prd-item'><span class='fontko-bold'> Created: </span><span>"
+								+ item.created + "</span></div>");
+			item.subscriptions.forEach(function(subscr){
+				$("#customers").append(
+						"<div class='prd-item'><span class='fontko-bold'> Subscribed to: </span><span>"
+								+ subscr + "</span></div>");
+			});
 		})
+	}
+	
+	function onGetProductsSuccess(data) {
+		data
+				.forEach(function(item) {
+					$("#frm").append(
+							"<div class='prd'><span class='fontko-bold'> Product: </span><span>"
+									+ item.name + " (" + item.id
+									+ ")</span></div>");
+					if (item.rusName)
+						$("#frm").append(
+								"<div class='prd-item'><span class='fontko-bold'> Russian: </span><span>"
+										+ item.rusName + "</span></div>");
+					if (item.blrName)
+						$("#frm")
+								.append(
+										"<div class='prd-item'><span class='fontko-bold'> Bellarusian: </span><span>"
+												+ item.blrName
+												+ "</span></div>");
+					if (item.fraName)
+						$("#frm").append(
+								"<div class='prd-item'><span class='fontko-bold'> French: </span><span>"
+										+ item.fraName + "</span></div>");
+					if (item.trkName)
+						$("#frm").append(
+								"<div class='prd-item'><span class='fontko-bold'> Turkey: </span><span>"
+										+ item.trkName + "</span></div>");
+					if (item.plans) {
+						item.plans
+								.forEach(function(plan) {
+									if (plan.id)
+										$("#frm").append(
+												"<div class='pln'><span class='fontko-bold'> Id: </span><span>"
+														+ plan.id
+														+ "</span></div>");
+									if (plan.amount)
+										$("#frm").append(
+												"<div class='pln-item'><span class='fontko-bold'> Amount: </span><span>"
+														+ plan.amount
+														+ "</span></div>");
+									if (plan.currency)
+										$("#frm").append(
+												"<div class='pln-item'><span class='fontko-bold'> Currency: </span><span>"
+														+ plan.currency
+														+ "</span></div>");
+									if (plan.interval)
+										$("#frm").append(
+												"<div class='pln-item'><span class='fontko-bold'> Interval: </span><span>"
+														+ plan.interval
+														+ "</span></div>");
+									if (plan.intervalCount)
+										$("#frm")
+												.append(
+														"<div class='pln-item'><span class='fontko-bold'> Interval count: </span><span>"
+																+ plan.intervalCount
+																+ "</span></div>");
+									if (plan.freePeriod)
+										$("#frm")
+												.append(
+														"<div class='pln-item'><span class='fontko-bold'> Free period (days): </span><span>"
+																+ plan.freePeriod
+																+ "</span></div>");
+								})
+					}
+				})
 	}
 </script>
 </head>
 <body>
-	<h4 style="color:DeepSkyBlue;margin:20px;">Available subscription plans</h4>
+
+
+<h4 class='titlo'>Create Customer</h4>
+<p style="margin-left:20px">You can get valid card number for testing <a href="https://stripe.com/docs/testing#cards" target="_blank">here</a></p>
+<div id='paycard'>
+	<form action="http://localhost:8080/createcustomer" method="post" id="payment-form">
+		<div class="form-row">
+			<label for="card-element"> Credit or debit card </label>
+			<div id="card-element">
+				<!-- A Stripe Element will be inserted here. -->
+			</div>
+
+			<!-- Used to display form errors. -->
+			<div id="card-errors" role="alert"></div>
+		</div>
+
+		<button>Submit Payment</button>
+	</form>
+	</div>
+	<h4 class='titlo'>Available customers</h4>
+	<div id='customers'></div>
+	
+	<h4 class='titlo'>Available subscription plans</h4>
 	<div id="frm"></div>
 </body>
 

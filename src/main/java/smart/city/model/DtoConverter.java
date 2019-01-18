@@ -2,6 +2,9 @@ package smart.city.model;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.stream.Collectors;
+
+import com.stripe.model.Customer;
 import com.stripe.model.Plan;
 import com.stripe.model.Product;
 
@@ -33,5 +36,13 @@ public class DtoConverter {
 			.setIntervalCount(source.getIntervalCount()) 
 			// TODO: replace deprecated method
 			.setFreePeriod(source.getTrialPeriodDays());		
+	}
+	
+	public static CustomerDto convert(Customer source) {
+		return new CustomerDto()
+				.setId(source.getId())
+				.setCreated(Instant.ofEpochSecond(source.getCreated()).atZone(ZoneId.systemDefault()).toLocalDateTime()) 
+				.setCardId(source.getDefaultSource())
+				.setSubscriptions(source.getSubscriptions().getData().stream().map(s -> s.getId()).collect(Collectors.toList()));
 	}
 }
